@@ -22,12 +22,57 @@ services:
     ports:
       - 3000:3000
     networks:
-      - my_network
+      - dev_host
 
   # Add more containers below (nginx, postgres, etc.)
+  db-mysql:
+    container_name: db-mysql
+    image: mysql
+    restart: always
+    volumes: 
+      - ./database/mysql:/var/lib/mysql
+    environment:
+      MYSQL_USER: docker
+      MYSQL_ROOT_PASSWORD: 123123
+      TZ: SYSTEM
+
+    ports:
+      - 3307:3307
+    networks:
+      - dev_host
+  
+  api-orders:
+    container_name: api-orders
+    build: ./api
+    restart: always
+    volumes:
+      - ./api/src:/app/src
+    ports:
+      - 5000:5000
+    networks:
+      - dev_host
+    depends_on:
+      - db-mysql
+    env_file:
+      - ./api/.env
+  
+  nginx: 
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - 9090:9090
+    volumes:
+      #- ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./next-app/public:/usr/share/nginx/html
+    networks:
+      - dev_host
+    depends_on:
+      - next-app
+      - api-orders
+      - db-mysql
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname
 networks:
-  my_network:
+  dev_host:
     external: true

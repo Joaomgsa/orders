@@ -32,10 +32,9 @@ services:
     volumes: 
       - ./database/mysql:/var/lib/mysql
     environment:
-      MYSQL_USER: docker
+      MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: 123123
       TZ: SYSTEM
-
     ports:
       - 3307:3307
     networks:
